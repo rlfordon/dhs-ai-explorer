@@ -411,27 +411,31 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.04em;
   white-space: nowrap;
+  background: transparent;
+  border: 1px solid var(--gray-300);
+  color: var(--gray-500);
 }
-.badge-impact-high { background: #fee2e2; color: #991b1b; }
-.badge-impact-presumed { background: #ffedd5; color: #9a3412; }
-.badge-impact-not { background: var(--gray-200); color: var(--gray-500); }
-.badge-appeal-yes { background: #dcfce7; color: #166534; }
-.badge-appeal-progress { background: #fef9c3; color: #854d0e; }
-.badge-appeal-precludes { background: #fee2e2; color: #991b1b; }
-.badge-appeal-na { background: var(--gray-200); color: var(--gray-500); }
-.badge-appeal-blank { background: #fecaca; color: #991b1b; font-style: italic; }
-.badge-demo { background: #fce4ec; color: #880e4f; }
+.badge-impact-high { color: #991b1b; border-color: #e8a0a0; }
+.badge-impact-presumed { color: #9a3412; border-color: #e8c4a0; }
+.badge-impact-not { color: var(--gray-400); border-color: var(--gray-200); }
+.badge-appeal-yes { color: #166534; border-color: #a0d8b0; }
+.badge-appeal-progress { color: #854d0e; border-color: #d8c8a0; }
+.badge-appeal-precludes { color: #991b1b; border-color: #e8a0a0; }
+.badge-appeal-na { color: var(--gray-400); border-color: var(--gray-200); }
+.badge-appeal-blank { color: #991b1b; border-color: #e8a0a0; font-style: italic; }
+.badge-demo { color: #880e4f; border-color: #d8a0b8; }
 .badge-flagged {
   background: var(--scarlet);
   color: var(--white);
+  border: none;
   font-size: 0.6rem;
   padding: 0.1rem 0.4rem;
   display: flex;
   align-items: center;
   gap: 0.2rem;
 }
-.badge-pii { background: #fef3c7; color: #92400e; }
-.badge-new { background: #dbeafe; color: #1e40af; }
+.badge-pii { color: #92400e; border-color: #d8c0a0; }
+.badge-new { color: #1e40af; border-color: #a0b8e0; }
 
 .card-expand-arrow {
   color: var(--gray-500);
@@ -705,6 +709,7 @@ let filters = {
   impact: '',
   appeal: '',
   pii: '',
+  status: '',
   search: '',
   flaggedOnly: false,
   newOnly: false
@@ -726,6 +731,7 @@ function filtersToURL() {
   if (filters.impact) params.set('impact', filters.impact);
   if (filters.appeal) params.set('appeal', filters.appeal);
   if (filters.pii) params.set('pii', filters.pii);
+  if (filters.status) params.set('status', filters.status);
   if (filters.search) params.set('q', filters.search);
   if (filters.flaggedOnly) params.set('flagged', '1');
   if (filters.newOnly) params.set('new', '1');
@@ -740,6 +746,7 @@ function filtersFromURL() {
   filters.impact = params.get('impact') || '';
   filters.appeal = params.get('appeal') || '';
   filters.pii = params.get('pii') || '';
+  filters.status = params.get('status') || '';
   filters.search = params.get('q') || '';
   filters.flaggedOnly = params.get('flagged') === '1';
   filters.newOnly = params.get('new') === '1';
@@ -782,6 +789,7 @@ function applyFiltersToUI() {
   setVal('fImpact', filters.impact);
   setVal('fAppeal', filters.appeal);
   setVal('fPII', filters.pii);
+  setVal('fStatus', filters.status);
   setVal('fSearch', filters.search);
   document.getElementById('fFlagged').classList.toggle('active', filters.flaggedOnly);
   document.getElementById('fNew').classList.toggle('active', filters.newOnly);
@@ -831,7 +839,7 @@ function buildStats() {
       </div>
       <div class="stat-card info">
         <div class="stat-number">83</div>
-        <div class="stat-label">New since 2024 inventory</div>
+        <div class="stat-label">New in 2025 inventory</div>
       </div>
     </div>
     <div style="font-size:0.8rem;color:var(--gray-500);margin-bottom:1rem;">
@@ -907,6 +915,16 @@ function buildFilters() {
       </select>
     </div>
     <div class="filter-group">
+      <label for="fStatus">Status</label>
+      <select id="fStatus" onchange="filters.status=this.value;renderCards()">
+        <option value="">All</option>
+        <option value="Deployed">Deployed</option>
+        <option value="Pre-deployment">Pre-deployment</option>
+        <option value="Pilot">Pilot</option>
+        <option value="Retired">Retired</option>
+      </select>
+    </div>
+    <div class="filter-group">
       <label for="fSearch">Search</label>
       <input type="text" id="fSearch" placeholder="Name, outputs, training data&hellip;" oninput="debouncedSearch(this.value)">
     </div>
@@ -914,7 +932,7 @@ function buildFilters() {
       <span class="toggle-dot" aria-hidden="true"></span> Flagged only
     </button>
     <button class="filter-toggle" id="fNew" onclick="toggleNew()" aria-pressed="false">
-      <span class="toggle-dot" aria-hidden="true"></span> New since 2024
+      <span class="toggle-dot" aria-hidden="true"></span> New in 2025
     </button>
   `;
 }
@@ -937,11 +955,11 @@ function toggleNew() {
 
 function hasActiveFilters() {
   return filters.agency || filters.topic || filters.impact || filters.appeal ||
-    filters.pii || filters.search || filters.flaggedOnly || filters.newOnly;
+    filters.pii || filters.status || filters.search || filters.flaggedOnly || filters.newOnly;
 }
 
 function clearFilters() {
-  filters = { agency: '', topic: '', impact: '', appeal: '', pii: '', search: '', flaggedOnly: false, newOnly: false };
+  filters = { agency: '', topic: '', impact: '', appeal: '', pii: '', status: '', search: '', flaggedOnly: false, newOnly: false };
   applyFiltersToUI();
   renderCards();
 }
@@ -961,6 +979,7 @@ function getFiltered() {
       }
     }
     if (filters.pii && d.usesPII !== filters.pii) return false;
+    if (filters.status && d.status !== filters.status) return false;
     if (filters.flaggedOnly && !ANNOTATIONS[d.id]) return false;
     if (filters.newOnly && !NEW_IDS.has(d.id)) return false;
     if (s) {
