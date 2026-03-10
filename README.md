@@ -16,9 +16,11 @@ Interactive explorer for the Department of Homeland Security's AI Use Case Inven
 
 Built for Class 9-1: Algorithmic Bias & Discrimination. The annotations highlight systems that illustrate concepts from the course's bias taxonomy (historical bias, measurement bias, deployment bias, automation bias, representation bias) and flag concerns raised by external watchdog organizations.
 
-## Data
+## Data Source
 
-- `dhs-ai-data.json` — 236 use cases extracted from the DHS AI Use Case Inventory
+The underlying data comes from the official [DHS AI Use Case Inventory](https://www.dhs.gov/publication/ai-use-case-inventory-library) — specifically the **2025 DHS AI Use Case Inventory** (XLSX, 162.31 KB, published 01/28/2026).
+
+- `dhs-ai-data.json` — 236 use cases extracted from that spreadsheet
 - `dhs-ai-annotations.json` — Curated annotations (editable independently of the app)
 
 To update annotations, edit `dhs-ai-annotations.json` only. No code changes needed.
