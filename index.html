@@ -10,6 +10,31 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* Skip-to-content link (visible on focus) */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  background: var(--scarlet);
+  color: var(--white);
+  padding: 0.5rem 1rem;
+  border-radius: 0 0 5px 5px;
+  z-index: 300;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+.skip-link:focus { top: 0; }
+
+/* Focus-visible for all interactive elements */
+*:focus-visible {
+  outline: 2px solid var(--scarlet);
+  outline-offset: 2px;
+}
+button:focus-visible, select:focus-visible, input:focus-visible {
+  outline-offset: 1px;
+}
+
 :root {
   --scarlet: #ba0c2f;
   --scarlet-dark: #8a0922;
@@ -99,7 +124,7 @@ body {
 .header-source {
   font-family: var(--font-mono);
   font-size: 0.68rem;
-  color: rgba(255,255,255,0.35);
+  color: rgba(255,255,255,0.6);
   margin-top: 0.75rem;
   letter-spacing: 0.04em;
 }
@@ -112,6 +137,7 @@ body {
 }
 .stats-toggle {
   max-width: 1280px;
+  width: 100%;
   margin: 0 auto;
   padding: 0.75rem 2rem;
   display: flex;
@@ -122,6 +148,10 @@ body {
   font-size: 0.85rem;
   color: var(--slate);
   gap: 0.5rem;
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  text-align: left;
 }
 .stats-toggle:hover { color: var(--scarlet); }
 .stats-toggle .arrow {
@@ -225,7 +255,7 @@ body {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--gray-400);
+  color: var(--gray-500);
   margin-bottom: 0.15rem;
 }
 .filter-group select,
@@ -251,12 +281,14 @@ body {
   display: flex;
   align-items: center;
   gap: 0.35rem;
+  font-family: var(--font-body);
   font-size: 0.8rem;
   cursor: pointer;
   padding: 0.4rem 0.7rem;
   border: 1px solid var(--gray-300);
   border-radius: 5px;
   background: var(--white);
+  color: var(--slate);
   user-select: none;
   transition: all 0.15s;
   white-space: nowrap;
@@ -302,6 +334,7 @@ body {
   padding: 0.2rem 0;
 }
 .clear-btn:hover { text-decoration: underline; }
+.clear-btn.hidden { visibility: hidden; pointer-events: none; }
 
 /* ─── MAIN CONTENT ─── */
 .main-content {
@@ -314,7 +347,7 @@ body {
 .card-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 8px;
 }
 .card {
   background: var(--white);
@@ -338,7 +371,7 @@ body {
 .card-id {
   font-family: var(--font-mono);
   font-size: 0.72rem;
-  color: var(--gray-400);
+  color: var(--gray-500);
   font-weight: 500;
   min-width: 70px;
 }
@@ -401,7 +434,7 @@ body {
 .badge-new { background: #dbeafe; color: #1e40af; }
 
 .card-expand-arrow {
-  color: var(--gray-400);
+  color: var(--gray-500);
   font-size: 0.65rem;
   transition: transform 0.2s;
   margin-left: auto;
@@ -472,7 +505,7 @@ body {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--gray-400);
+  color: var(--gray-500);
   margin-bottom: 0.15rem;
 }
 .detail-value {
@@ -519,16 +552,80 @@ body {
   .finding-source { min-width: 80px; }
 }
 
+/* ─── STICKY BAR SCROLL STATE ─── */
+.filters-bar.scrolled {
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  border-bottom-color: var(--gray-300);
+}
+
+/* ─── BACK TO TOP ─── */
+.back-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: var(--white);
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s, background 0.15s;
+  z-index: 90;
+}
+.back-to-top.visible { opacity: 1; pointer-events: auto; }
+.back-to-top:hover { background: var(--scarlet); }
+
+/* ─── FOOTER ─── */
+.site-footer {
+  background: var(--navy);
+  color: rgba(255,255,255,0.5);
+  text-align: center;
+  padding: 1.5rem 2rem;
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+.site-footer a {
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+}
+.site-footer a:hover { color: var(--white); text-decoration: underline; }
+
+/* ─── ERROR STATE ─── */
+.load-error {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--scarlet);
+}
+.load-error h3 {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+}
+.load-error p {
+  color: var(--gray-500);
+  font-size: 0.9rem;
+}
+
 /* ─── LOADING ─── */
 .loading {
   text-align: center;
   padding: 4rem;
-  color: var(--gray-400);
+  color: var(--gray-500);
   font-size: 1.1rem;
 }
 </style>
 </head>
 <body>
+
+<a class="skip-link" href="#cardList">Skip to use cases</a>
 
 <!-- HEADER -->
 <header class="site-header">
@@ -541,11 +638,12 @@ body {
 </header>
 
 <!-- STATS -->
-<section class="stats-section open" id="statsSection">
-  <div class="stats-toggle" onclick="toggleStats()">
+<section class="stats-section" id="statsSection">
+  <button class="stats-toggle" onclick="toggleStats()" aria-expanded="false" aria-controls="statsBody">
     <span class="arrow">&#9654;</span> Key Numbers &amp; Systemwide Findings
-  </div>
-  <div class="stats-body">
+  </button>
+
+  <div class="stats-body" id="statsBody">
     <div class="stats-inner" id="statsContent"></div>
   </div>
 </section>
@@ -568,6 +666,13 @@ body {
   </div>
 </main>
 
+<button class="back-to-top" id="backToTop" aria-label="Back to top" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#8593;</button>
+
+<footer class="site-footer">
+  <div>Built for Class 9-1: Algorithmic Bias &amp; Discrimination</div>
+  <div>Data source: <a href="https://www.dhs.gov/publication/ai-use-case-inventory-library" target="_blank" rel="noopener">DHS AI Use Case Inventory</a> (January 2026)</div>
+</footer>
+
 <script>
 // ─── DATA (will be loaded) ───
 let DATA = [];
@@ -576,7 +681,6 @@ let SYSTEMWIDE = [];
 let STATS = {};
 
 // 83 use cases new since the 2024 inventory (July 2025 revision)
-// Compare: https://www.dhs.gov/sites/default/files/2025-06/25_07_01_ocio_2024-dhs-ai-use-case-inventory%20July_Revision.xlsx
 const NEW_IDS = new Set([
   "DHS-2447","DHS-2454","DHS-2457","DHS-2458","DHS-2459","DHS-2467",
   "DHS-2511","DHS-2513","DHS-2514","DHS-2515","DHS-2517","DHS-2518",
@@ -606,30 +710,96 @@ let filters = {
   newOnly: false
 };
 
+// ─── DEBOUNCE ───
+let searchTimer = null;
+function debouncedSearch(value) {
+  filters.search = value;
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => renderCards(), 150);
+}
+
+// ─── URL STATE ───
+function filtersToURL() {
+  const params = new URLSearchParams();
+  if (filters.agency) params.set('agency', filters.agency);
+  if (filters.topic) params.set('topic', filters.topic);
+  if (filters.impact) params.set('impact', filters.impact);
+  if (filters.appeal) params.set('appeal', filters.appeal);
+  if (filters.pii) params.set('pii', filters.pii);
+  if (filters.search) params.set('q', filters.search);
+  if (filters.flaggedOnly) params.set('flagged', '1');
+  if (filters.newOnly) params.set('new', '1');
+  const qs = params.toString();
+  history.replaceState(null, '', qs ? '?' + qs : location.pathname);
+}
+
+function filtersFromURL() {
+  const params = new URLSearchParams(location.search);
+  filters.agency = params.get('agency') || '';
+  filters.topic = params.get('topic') || '';
+  filters.impact = params.get('impact') || '';
+  filters.appeal = params.get('appeal') || '';
+  filters.pii = params.get('pii') || '';
+  filters.search = params.get('q') || '';
+  filters.flaggedOnly = params.get('flagged') === '1';
+  filters.newOnly = params.get('new') === '1';
+}
+
 // ─── LOAD DATA ───
 async function loadData() {
-  const [dataResp, annoResp] = await Promise.all([
-    fetch('dhs-ai-data.json'),
-    fetch('dhs-ai-annotations.json')
-  ]);
-  DATA = await dataResp.json();
-  const annoData = await annoResp.json();
-  ANNOTATIONS = annoData.annotations || {};
-  SYSTEMWIDE = annoData.systemwideFindings || [];
-  STATS = annoData.stats || {};
-  init();
+  try {
+    const [dataResp, annoResp] = await Promise.all([
+      fetch('dhs-ai-data.json'),
+      fetch('dhs-ai-annotations.json')
+    ]);
+    if (!dataResp.ok || !annoResp.ok) throw new Error('Network response was not ok');
+    DATA = await dataResp.json();
+    const annoData = await annoResp.json();
+    ANNOTATIONS = annoData.annotations || {};
+    SYSTEMWIDE = annoData.systemwideFindings || [];
+    STATS = annoData.stats || {};
+    init();
+  } catch (err) {
+    document.getElementById('cardList').innerHTML =
+      `<div class="load-error"><h3>Failed to load data</h3><p>Check your connection and reload the page. (${esc(err.message)})</p></div>`;
+  }
 }
 
 function init() {
+  filtersFromURL();
   buildStats();
   buildFilters();
+  applyFiltersToUI();
   renderCards();
+  setupScrollListeners();
+}
+
+// Apply URL-restored filters to the UI controls
+function applyFiltersToUI() {
+  const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+  setVal('fAgency', filters.agency);
+  setVal('fTopic', filters.topic);
+  setVal('fImpact', filters.impact);
+  setVal('fAppeal', filters.appeal);
+  setVal('fPII', filters.pii);
+  setVal('fSearch', filters.search);
+  document.getElementById('fFlagged').classList.toggle('active', filters.flaggedOnly);
+  document.getElementById('fNew').classList.toggle('active', filters.newOnly);
+}
+
+// ─── SCROLL LISTENERS ───
+function setupScrollListeners() {
+  const filtersBar = document.querySelector('.filters-bar');
+  const backBtn = document.getElementById('backToTop');
+  window.addEventListener('scroll', () => {
+    filtersBar.classList.toggle('scrolled', window.scrollY > 60);
+    backBtn.classList.toggle('visible', window.scrollY > 600);
+  }, { passive: true });
 }
 
 // ─── STATS ───
 function buildStats() {
   const el = document.getElementById('statsContent');
-  // Agency counts
   const agencyCounts = {};
   DATA.forEach(d => { agencyCounts[d.agency] = (agencyCounts[d.agency] || 0) + 1; });
 
@@ -681,7 +851,10 @@ function buildStats() {
 }
 
 function toggleStats() {
-  document.getElementById('statsSection').classList.toggle('open');
+  const section = document.getElementById('statsSection');
+  section.classList.toggle('open');
+  const btn = section.querySelector('.stats-toggle');
+  btn.setAttribute('aria-expanded', section.classList.contains('open'));
 }
 
 // ─── FILTERS ───
@@ -692,21 +865,21 @@ function buildFilters() {
 
   row.innerHTML = `
     <div class="filter-group">
-      <label>Agency</label>
+      <label for="fAgency">Agency</label>
       <select id="fAgency" onchange="filters.agency=this.value;renderCards()">
         <option value="">All agencies</option>
         ${agencies.map(a => `<option value="${esc(a)}">${esc(a)}</option>`).join('')}
       </select>
     </div>
     <div class="filter-group">
-      <label>Topic</label>
+      <label for="fTopic">Topic</label>
       <select id="fTopic" onchange="filters.topic=this.value;renderCards()">
         <option value="">All topics</option>
         ${topics.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('')}
       </select>
     </div>
     <div class="filter-group">
-      <label>Impact Level</label>
+      <label for="fImpact">Impact Level</label>
       <select id="fImpact" onchange="filters.impact=this.value;renderCards()">
         <option value="">All</option>
         <option value="High-impact">High-impact</option>
@@ -715,7 +888,7 @@ function buildFilters() {
       </select>
     </div>
     <div class="filter-group">
-      <label>Appeal Process</label>
+      <label for="fAppeal">Appeal Process</label>
       <select id="fAppeal" onchange="filters.appeal=this.value;renderCards()">
         <option value="">All</option>
         <option value="Yes">Yes</option>
@@ -726,7 +899,7 @@ function buildFilters() {
       </select>
     </div>
     <div class="filter-group">
-      <label>Uses PII</label>
+      <label for="fPII">Uses PII</label>
       <select id="fPII" onchange="filters.pii=this.value;renderCards()">
         <option value="">All</option>
         <option value="Yes">Yes</option>
@@ -734,40 +907,42 @@ function buildFilters() {
       </select>
     </div>
     <div class="filter-group">
-      <label>Search</label>
-      <input type="text" id="fSearch" placeholder="Name, outputs, training data&hellip;" oninput="filters.search=this.value;renderCards()">
+      <label for="fSearch">Search</label>
+      <input type="text" id="fSearch" placeholder="Name, outputs, training data&hellip;" oninput="debouncedSearch(this.value)">
     </div>
-    <div class="filter-toggle" id="fFlagged" onclick="toggleFlagged()">
-      <span class="toggle-dot"></span> Flagged only
-    </div>
-    <div class="filter-toggle" id="fNew" onclick="toggleNew()">
-      <span class="toggle-dot"></span> New since 2024
-    </div>
+    <button class="filter-toggle" id="fFlagged" onclick="toggleFlagged()" aria-pressed="false">
+      <span class="toggle-dot" aria-hidden="true"></span> Flagged only
+    </button>
+    <button class="filter-toggle" id="fNew" onclick="toggleNew()" aria-pressed="false">
+      <span class="toggle-dot" aria-hidden="true"></span> New since 2024
+    </button>
   `;
 }
 
 function toggleFlagged() {
   filters.flaggedOnly = !filters.flaggedOnly;
-  document.getElementById('fFlagged').classList.toggle('active', filters.flaggedOnly);
+  const btn = document.getElementById('fFlagged');
+  btn.classList.toggle('active', filters.flaggedOnly);
+  btn.setAttribute('aria-pressed', filters.flaggedOnly);
   renderCards();
 }
 
 function toggleNew() {
   filters.newOnly = !filters.newOnly;
-  document.getElementById('fNew').classList.toggle('active', filters.newOnly);
+  const btn = document.getElementById('fNew');
+  btn.classList.toggle('active', filters.newOnly);
+  btn.setAttribute('aria-pressed', filters.newOnly);
   renderCards();
+}
+
+function hasActiveFilters() {
+  return filters.agency || filters.topic || filters.impact || filters.appeal ||
+    filters.pii || filters.search || filters.flaggedOnly || filters.newOnly;
 }
 
 function clearFilters() {
   filters = { agency: '', topic: '', impact: '', appeal: '', pii: '', search: '', flaggedOnly: false, newOnly: false };
-  document.getElementById('fAgency').value = '';
-  document.getElementById('fTopic').value = '';
-  document.getElementById('fImpact').value = '';
-  document.getElementById('fAppeal').value = '';
-  document.getElementById('fPII').value = '';
-  document.getElementById('fSearch').value = '';
-  document.getElementById('fFlagged').classList.remove('active');
-  document.getElementById('fNew').classList.remove('active');
+  applyFiltersToUI();
   renderCards();
 }
 
@@ -801,6 +976,13 @@ function renderCards() {
   const list = document.getElementById('cardList');
   const filtered = getFiltered();
 
+  // Update URL with current filters
+  filtersToURL();
+
+  // Update clear button visibility
+  const clearBtn = document.querySelector('.clear-btn');
+  if (clearBtn) clearBtn.classList.toggle('hidden', !hasActiveFilters());
+
   document.getElementById('resultCount').innerHTML =
     `Showing <strong>${filtered.length}</strong> of <strong>236</strong> use cases`;
 
@@ -817,7 +999,10 @@ function renderCards() {
 
     return `
       <div class="card ${isFlagged ? 'flagged' : ''}" id="card-${esc(d.id)}">
-        <div class="card-header" onclick="toggleCard('${esc(d.id)}')">
+        <div class="card-header" role="button" tabindex="0"
+             onclick="toggleCard('${esc(d.id)}')"
+             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleCard('${esc(d.id)}')}"
+             aria-expanded="false" aria-controls="body-${esc(d.id)}">
           <span class="card-id">${esc(d.id)}</span>
           <span class="card-agency">${esc(d.agency)}</span>
           <span class="card-name">${highlightSearch(esc(d.name))}</span>
@@ -830,9 +1015,9 @@ function renderCards() {
             ${NEW_IDS.has(d.id) ? '<span class="badge badge-new">NEW</span>' : ''}
             ${isFlagged ? '<span class="badge badge-flagged">&#9873; FLAGGED</span>' : ''}
           </div>
-          <span class="card-expand-arrow">&#9654;</span>
+          <span class="card-expand-arrow" aria-hidden="true">&#9654;</span>
         </div>
-        <div class="card-body">
+        <div class="card-body" id="body-${esc(d.id)}">
           <div class="card-body-inner">
             ${hasClass ? `
               <div class="annotation-banner class-note">
@@ -874,6 +1059,8 @@ function renderCards() {
 function toggleCard(id) {
   const card = document.getElementById('card-' + id);
   card.classList.toggle('open');
+  const header = card.querySelector('.card-header');
+  header.setAttribute('aria-expanded', card.classList.contains('open'));
 }
 
 function impactBadge(level) {
