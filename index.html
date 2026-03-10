@@ -398,6 +398,7 @@ body {
   gap: 0.2rem;
 }
 .badge-pii { background: #fef3c7; color: #92400e; }
+.badge-new { background: #dbeafe; color: #1e40af; }
 
 .card-expand-arrow {
   color: var(--gray-400);
@@ -574,6 +575,25 @@ let ANNOTATIONS = {};
 let SYSTEMWIDE = [];
 let STATS = {};
 
+// 83 use cases new since the 2024 inventory (July 2025 revision)
+// Compare: https://www.dhs.gov/sites/default/files/2025-06/25_07_01_ocio_2024-dhs-ai-use-case-inventory%20July_Revision.xlsx
+const NEW_IDS = new Set([
+  "DHS-2447","DHS-2454","DHS-2457","DHS-2458","DHS-2459","DHS-2467",
+  "DHS-2511","DHS-2513","DHS-2514","DHS-2515","DHS-2517","DHS-2518",
+  "DHS-2522","DHS-2526","DHS-2529","DHS-2530","DHS-2538","DHS-2540",
+  "DHS-2543","DHS-2547","DHS-2551","DHS-2552","DHS-2553","DHS-2556",
+  "DHS-2559","DHS-2561","DHS-2565","DHS-2566","DHS-2567","DHS-2568",
+  "DHS-2569","DHS-2570","DHS-2571","DHS-2572","DHS-2575","DHS-2577",
+  "DHS-2578","DHS-2581","DHS-2583","DHS-2584","DHS-2586","DHS-2587",
+  "DHS-2594","DHS-2595","DHS-2598","DHS-2599","DHS-2603","DHS-2604",
+  "DHS-2605","DHS-2609","DHS-2619","DHS-2622","DHS-2626","DHS-2627",
+  "DHS-2641","DHS-2663","DHS-2666","DHS-2667","DHS-2669","DHS-2676",
+  "DHS-2704","DHS-2705","DHS-2709","DHS-2710","DHS-2711","DHS-2712",
+  "DHS-2713","DHS-2717","DHS-2718","DHS-2720","DHS-2721","DHS-2722",
+  "DHS-2724","DHS-2726","DHS-2727","DHS-2729","DHS-2731","DHS-2740",
+  "DHS-2745","DHS-2749","DHS-2755","DHS-2758","DHS-2759"
+]);
+
 // ─── STATE ───
 let filters = {
   agency: '',
@@ -582,7 +602,8 @@ let filters = {
   appeal: '',
   pii: '',
   search: '',
-  flaggedOnly: false
+  flaggedOnly: false,
+  newOnly: false
 };
 
 // ─── LOAD DATA ───
@@ -637,6 +658,10 @@ function buildStats() {
       <div class="stat-card">
         <div class="stat-number">${Object.keys(ANNOTATIONS).length}</div>
         <div class="stat-label">Flagged &amp; annotated systems</div>
+      </div>
+      <div class="stat-card info">
+        <div class="stat-number">83</div>
+        <div class="stat-label">New since 2024 inventory</div>
       </div>
     </div>
     <div style="font-size:0.8rem;color:var(--gray-500);margin-bottom:1rem;">
@@ -715,6 +740,9 @@ function buildFilters() {
     <div class="filter-toggle" id="fFlagged" onclick="toggleFlagged()">
       <span class="toggle-dot"></span> Flagged only
     </div>
+    <div class="filter-toggle" id="fNew" onclick="toggleNew()">
+      <span class="toggle-dot"></span> New since 2024
+    </div>
   `;
 }
 
@@ -724,8 +752,14 @@ function toggleFlagged() {
   renderCards();
 }
 
+function toggleNew() {
+  filters.newOnly = !filters.newOnly;
+  document.getElementById('fNew').classList.toggle('active', filters.newOnly);
+  renderCards();
+}
+
 function clearFilters() {
-  filters = { agency: '', topic: '', impact: '', appeal: '', pii: '', search: '', flaggedOnly: false };
+  filters = { agency: '', topic: '', impact: '', appeal: '', pii: '', search: '', flaggedOnly: false, newOnly: false };
   document.getElementById('fAgency').value = '';
   document.getElementById('fTopic').value = '';
   document.getElementById('fImpact').value = '';
@@ -733,6 +767,7 @@ function clearFilters() {
   document.getElementById('fPII').value = '';
   document.getElementById('fSearch').value = '';
   document.getElementById('fFlagged').classList.remove('active');
+  document.getElementById('fNew').classList.remove('active');
   renderCards();
 }
 
@@ -752,6 +787,7 @@ function getFiltered() {
     }
     if (filters.pii && d.usesPII !== filters.pii) return false;
     if (filters.flaggedOnly && !ANNOTATIONS[d.id]) return false;
+    if (filters.newOnly && !NEW_IDS.has(d.id)) return false;
     if (s) {
       const hay = [d.name, d.problemStatement, d.outputs, d.trainingData].join(' ').toLowerCase();
       if (!hay.includes(s)) return false;
@@ -791,6 +827,7 @@ function renderCards() {
             ${appealBadge(d.appealProcess)}
             ${d.demographicVariables ? '<span class="badge badge-demo">Demographics</span>' : ''}
             ${d.usesPII === 'Yes' ? '<span class="badge badge-pii">PII</span>' : ''}
+            ${NEW_IDS.has(d.id) ? '<span class="badge badge-new">NEW</span>' : ''}
             ${isFlagged ? '<span class="badge badge-flagged">&#9873; FLAGGED</span>' : ''}
           </div>
           <span class="card-expand-arrow">&#9654;</span>
