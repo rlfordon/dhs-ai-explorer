@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DHS AI Use Case Inventory Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --scarlet: #ba0c2f;
+  --scarlet-dark: #8a0922;
+  --scarlet-light: #e8143d;
+  --navy: #0a1628;
+  --navy-mid: #162036;
+  --slate: #334155;
+  --gray-100: #f7f8fa;
+  --gray-200: #e9ecf0;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-700: #374151;
+  --white: #ffffff;
+  --watchdog-blue: #1e40af;
+  --watchdog-bg: #eff6ff;
+  --class-bg: #fef2f2;
+  --class-border: #ba0c2f;
+  --green: #15803d;
+  --yellow: #a16207;
+  --orange: #c2410c;
+  --red-badge: #dc2626;
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body: 'Source Sans 3', 'Source Sans Pro', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  color: var(--slate);
+  background: var(--gray-100);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── HEADER ─── */
+.site-header {
+  background: var(--navy);
+  color: var(--white);
+  padding: 2.5rem 2rem 2rem;
+  position: relative;
+  overflow: hidden;
+}
+.site-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(255,255,255,0.02) 60px, rgba(255,255,255,0.02) 61px),
+    repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(255,255,255,0.02) 60px, rgba(255,255,255,0.02) 61px);
+  pointer-events: none;
+}
+.header-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+.header-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--scarlet-light);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+.header-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 400;
+  line-height: 1.15;
+  margin-bottom: 0.5rem;
+}
+.header-subtitle {
+  font-size: 1rem;
+  color: rgba(255,255,255,0.65);
+  max-width: 680px;
+  font-weight: 300;
+}
+.header-subtitle strong {
+  color: rgba(255,255,255,0.9);
+  font-weight: 600;
+}
+.header-source {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.35);
+  margin-top: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+/* ─── STATS DASHBOARD ─── */
+.stats-section {
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-200);
+  overflow: hidden;
+}
+.stats-toggle {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0.75rem 2rem;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--slate);
+  gap: 0.5rem;
+}
+.stats-toggle:hover { color: var(--scarlet); }
+.stats-toggle .arrow {
+  transition: transform 0.25s ease;
+  font-size: 0.7rem;
+}
+.stats-section.open .stats-toggle .arrow { transform: rotate(90deg); }
+.stats-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+.stats-section.open .stats-body { max-height: 800px; }
+.stats-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2rem 1.5rem;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.stat-card {
+  background: var(--gray-100);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  border-left: 3px solid var(--gray-300);
+}
+.stat-card.alert { border-left-color: var(--scarlet); background: #fef7f8; }
+.stat-card.info { border-left-color: var(--watchdog-blue); }
+.stat-number {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--navy);
+}
+.stat-card.alert .stat-number { color: var(--scarlet); }
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--gray-500);
+  margin-top: 0.25rem;
+  line-height: 1.3;
+}
+.findings-section { margin-top: 0.5rem; }
+.findings-title {
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--gray-500);
+  margin-bottom: 0.75rem;
+}
+.finding-item {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--gray-200);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.finding-source {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--watchdog-blue);
+  white-space: nowrap;
+  min-width: 120px;
+  flex-shrink: 0;
+}
+.finding-source a { color: inherit; text-decoration: none; }
+.finding-source a:hover { text-decoration: underline; }
+
+/* ─── FILTERS ─── */
+.filters-bar {
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-200);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.filters-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0.75rem 2rem;
+}
+.filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+.filter-group {
+  position: relative;
+}
+.filter-group label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--gray-400);
+  margin-bottom: 0.15rem;
+}
+.filter-group select,
+.filter-group input[type="text"] {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--gray-300);
+  border-radius: 5px;
+  background: var(--white);
+  color: var(--slate);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.filter-group select:focus,
+.filter-group input:focus {
+  border-color: var(--scarlet);
+}
+.filter-group input[type="text"] {
+  width: 220px;
+}
+.filter-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--gray-300);
+  border-radius: 5px;
+  background: var(--white);
+  user-select: none;
+  transition: all 0.15s;
+  white-space: nowrap;
+  margin-top: 0.9rem;
+}
+.filter-toggle:hover { border-color: var(--gray-400); }
+.filter-toggle.active {
+  background: var(--scarlet);
+  color: var(--white);
+  border-color: var(--scarlet);
+}
+.filter-toggle .toggle-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--gray-300);
+  transition: background 0.15s;
+}
+.filter-toggle.active .toggle-dot { background: var(--white); }
+
+.filters-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+}
+.result-count {
+  color: var(--gray-500);
+  font-weight: 400;
+}
+.result-count strong {
+  color: var(--slate);
+  font-weight: 700;
+}
+.clear-btn {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: var(--scarlet);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.2rem 0;
+}
+.clear-btn:hover { text-decoration: underline; }
+
+/* ─── MAIN CONTENT ─── */
+.main-content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1.25rem 2rem 3rem;
+}
+
+/* ─── CARDS ─── */
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: 6px;
+  overflow: hidden;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.card:hover { border-color: var(--gray-300); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.card.flagged { border-left: 3px solid var(--scarlet); }
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  user-select: none;
+  flex-wrap: wrap;
+}
+.card-id {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--gray-400);
+  font-weight: 500;
+  min-width: 70px;
+}
+.card-agency {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.15rem 0.45rem;
+  border-radius: 3px;
+  background: var(--navy);
+  color: var(--white);
+}
+.card-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--navy);
+  flex: 1;
+  min-width: 200px;
+}
+.card-topic {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  font-style: italic;
+}
+.card-badges {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.12rem 0.45rem;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.badge-impact-high { background: #fee2e2; color: #991b1b; }
+.badge-impact-presumed { background: #ffedd5; color: #9a3412; }
+.badge-impact-not { background: var(--gray-200); color: var(--gray-500); }
+.badge-appeal-yes { background: #dcfce7; color: #166534; }
+.badge-appeal-progress { background: #fef9c3; color: #854d0e; }
+.badge-appeal-precludes { background: #fee2e2; color: #991b1b; }
+.badge-appeal-na { background: var(--gray-200); color: var(--gray-500); }
+.badge-appeal-blank { background: #fecaca; color: #991b1b; font-style: italic; }
+.badge-demo { background: #fce4ec; color: #880e4f; }
+.badge-flagged {
+  background: var(--scarlet);
+  color: var(--white);
+  font-size: 0.6rem;
+  padding: 0.1rem 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+.badge-pii { background: #fef3c7; color: #92400e; }
+
+.card-expand-arrow {
+  color: var(--gray-400);
+  font-size: 0.65rem;
+  transition: transform 0.2s;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.card.open .card-expand-arrow { transform: rotate(90deg); }
+
+/* ─── EXPANDED CARD ─── */
+.card-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+}
+.card.open .card-body { max-height: 3000px; }
+.card-body-inner {
+  padding: 0 1rem 1.25rem;
+  border-top: 1px solid var(--gray-200);
+}
+
+/* Annotation banners */
+.annotation-banner {
+  margin: 1rem 0 0.75rem;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  font-size: 0.85rem;
+  line-height: 1.55;
+}
+.annotation-banner.class-note {
+  background: var(--class-bg);
+  border-left: 3px solid var(--class-border);
+}
+.annotation-banner.watchdog-note {
+  background: var(--watchdog-bg);
+  border-left: 3px solid var(--watchdog-blue);
+  margin-top: 0.5rem;
+}
+.annotation-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.35rem;
+}
+.class-note .annotation-label { color: var(--scarlet); }
+.watchdog-note .annotation-label { color: var(--watchdog-blue); }
+.watchdog-source {
+  font-weight: 600;
+}
+.watchdog-source a {
+  color: var(--watchdog-blue);
+  text-decoration: none;
+}
+.watchdog-source a:hover { text-decoration: underline; }
+.watchdog-entry + .watchdog-entry { margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid rgba(30,64,175,0.1); }
+
+/* Detail fields */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1.5rem;
+  margin-top: 1rem;
+}
+.detail-field { }
+.detail-field.full { grid-column: 1 / -1; }
+.detail-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--gray-400);
+  margin-bottom: 0.15rem;
+}
+.detail-value {
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--slate);
+}
+.detail-value.empty {
+  color: var(--gray-400);
+  font-style: italic;
+}
+.detail-value mark {
+  background: #fef08a;
+  color: inherit;
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+/* ─── NO RESULTS ─── */
+.no-results {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--gray-400);
+}
+.no-results h3 {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  color: var(--gray-500);
+  margin-bottom: 0.5rem;
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 900px) {
+  .detail-grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+}
+@media (max-width: 700px) {
+  .site-header { padding: 1.5rem 1rem; }
+  .filters-inner { padding: 0.75rem 1rem; }
+  .main-content { padding: 1rem 1rem 2rem; }
+  .filter-group input[type="text"] { width: 160px; }
+  .card-header { padding: 0.6rem 0.75rem; }
+  .card-topic { display: none; }
+  .finding-source { min-width: 80px; }
+}
+
+/* ─── LOADING ─── */
+.loading {
+  text-align: center;
+  padding: 4rem;
+  color: var(--gray-400);
+  font-size: 1.1rem;
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-eyebrow">Class 9-1: Algorithmic Bias &amp; Discrimination</div>
+    <h1 class="header-title">DHS AI Use Case Inventory Explorer</h1>
+    <p class="header-subtitle"><strong>236 AI systems</strong> used by the Department of Homeland Security &mdash; searchable, filterable, and annotated with watchdog findings and class taxonomy flags.</p>
+    <p class="header-source">Data: DHS AI Use Case Inventory (January 2026)</p>
+  </div>
+</header>
+
+<!-- STATS -->
+<section class="stats-section open" id="statsSection">
+  <div class="stats-toggle" onclick="toggleStats()">
+    <span class="arrow">&#9654;</span> Key Numbers &amp; Systemwide Findings
+  </div>
+  <div class="stats-body">
+    <div class="stats-inner" id="statsContent"></div>
+  </div>
+</section>
+
+<!-- FILTERS -->
+<div class="filters-bar">
+  <div class="filters-inner">
+    <div class="filters-row" id="filtersRow"></div>
+    <div class="filters-meta">
+      <span class="result-count" id="resultCount"></span>
+      <button class="clear-btn" onclick="clearFilters()">Clear all filters</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main-content">
+  <div class="card-list" id="cardList">
+    <div class="loading">Loading inventory&hellip;</div>
+  </div>
+</main>
+
+<script>
+// ─── DATA (will be loaded) ───
+let DATA = [];
+let ANNOTATIONS = {};
+let SYSTEMWIDE = [];
+let STATS = {};
+
+// ─── STATE ───
+let filters = {
+  agency: '',
+  topic: '',
+  impact: '',
+  appeal: '',
+  pii: '',
+  search: '',
+  flaggedOnly: false
+};
+
+// ─── LOAD DATA ───
+async function loadData() {
+  const [dataResp, annoResp] = await Promise.all([
+    fetch('dhs-ai-data.json'),
+    fetch('dhs-ai-annotations.json')
+  ]);
+  DATA = await dataResp.json();
+  const annoData = await annoResp.json();
+  ANNOTATIONS = annoData.annotations || {};
+  SYSTEMWIDE = annoData.systemwideFindings || [];
+  STATS = annoData.stats || {};
+  init();
+}
+
+function init() {
+  buildStats();
+  buildFilters();
+  renderCards();
+}
+
+// ─── STATS ───
+function buildStats() {
+  const el = document.getElementById('statsContent');
+  // Agency counts
+  const agencyCounts = {};
+  DATA.forEach(d => { agencyCounts[d.agency] = (agencyCounts[d.agency] || 0) + 1; });
+
+  el.innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number">236</div>
+        <div class="stat-label">Total AI use cases</div>
+      </div>
+      <div class="stat-card alert">
+        <div class="stat-number">221</div>
+        <div class="stat-label">No appeal process</div>
+      </div>
+      <div class="stat-card alert">
+        <div class="stat-number">89 <span style="font-size:0.5em;color:var(--gray-500)">of 104</span></div>
+        <div class="stat-label">High-impact systems with no appeal</div>
+      </div>
+      <div class="stat-card info">
+        <div class="stat-number">10</div>
+        <div class="stat-label">Systems with established appeal process</div>
+      </div>
+      <div class="stat-card alert">
+        <div class="stat-number">6</div>
+        <div class="stat-label">Explicitly use demographic variables</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">${Object.keys(ANNOTATIONS).length}</div>
+        <div class="stat-label">Flagged &amp; annotated systems</div>
+      </div>
+    </div>
+    <div style="font-size:0.8rem;color:var(--gray-500);margin-bottom:1rem;">
+      <strong style="color:var(--slate);">By agency:</strong>
+      ${Object.entries(agencyCounts).sort((a,b) => b[1]-a[1]).map(([k,v]) => `${k}&nbsp;(${v})`).join(' &middot; ')}
+    </div>
+    <div class="findings-section">
+      <div class="findings-title">Systemwide Findings</div>
+      ${SYSTEMWIDE.map(f => `
+        <div class="finding-item">
+          <div class="finding-source"><a href="${esc(f.url)}" target="_blank" rel="noopener">${esc(f.source)}</a></div>
+          <div>${esc(f.finding)}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function toggleStats() {
+  document.getElementById('statsSection').classList.toggle('open');
+}
+
+// ─── FILTERS ───
+function buildFilters() {
+  const agencies = [...new Set(DATA.map(d => d.agency))].sort();
+  const topics = [...new Set(DATA.map(d => d.topic).filter(Boolean))].sort();
+  const row = document.getElementById('filtersRow');
+
+  row.innerHTML = `
+    <div class="filter-group">
+      <label>Agency</label>
+      <select id="fAgency" onchange="filters.agency=this.value;renderCards()">
+        <option value="">All agencies</option>
+        ${agencies.map(a => `<option value="${esc(a)}">${esc(a)}</option>`).join('')}
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Topic</label>
+      <select id="fTopic" onchange="filters.topic=this.value;renderCards()">
+        <option value="">All topics</option>
+        ${topics.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('')}
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Impact Level</label>
+      <select id="fImpact" onchange="filters.impact=this.value;renderCards()">
+        <option value="">All</option>
+        <option value="High-impact">High-impact</option>
+        <option value="Presumed high-impact">Presumed high-impact</option>
+        <option value="Not high-impact">Not high-impact</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Appeal Process</label>
+      <select id="fAppeal" onchange="filters.appeal=this.value;renderCards()">
+        <option value="">All</option>
+        <option value="Yes">Yes</option>
+        <option value="Not applicable">Not applicable</option>
+        <option value="In-progress">In-progress</option>
+        <option value="Law precludes">Law precludes</option>
+        <option value="__blank">None listed</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Uses PII</label>
+      <select id="fPII" onchange="filters.pii=this.value;renderCards()">
+        <option value="">All</option>
+        <option value="Yes">Yes</option>
+        <option value="No">No</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Search</label>
+      <input type="text" id="fSearch" placeholder="Name, outputs, training data&hellip;" oninput="filters.search=this.value;renderCards()">
+    </div>
+    <div class="filter-toggle" id="fFlagged" onclick="toggleFlagged()">
+      <span class="toggle-dot"></span> Flagged only
+    </div>
+  `;
+}
+
+function toggleFlagged() {
+  filters.flaggedOnly = !filters.flaggedOnly;
+  document.getElementById('fFlagged').classList.toggle('active', filters.flaggedOnly);
+  renderCards();
+}
+
+function clearFilters() {
+  filters = { agency: '', topic: '', impact: '', appeal: '', pii: '', search: '', flaggedOnly: false };
+  document.getElementById('fAgency').value = '';
+  document.getElementById('fTopic').value = '';
+  document.getElementById('fImpact').value = '';
+  document.getElementById('fAppeal').value = '';
+  document.getElementById('fPII').value = '';
+  document.getElementById('fSearch').value = '';
+  document.getElementById('fFlagged').classList.remove('active');
+  renderCards();
+}
+
+// ─── FILTERING ───
+function getFiltered() {
+  const s = filters.search.toLowerCase().trim();
+  return DATA.filter(d => {
+    if (filters.agency && d.agency !== filters.agency) return false;
+    if (filters.topic && d.topic !== filters.topic) return false;
+    if (filters.impact && d.impactLevel !== filters.impact) return false;
+    if (filters.appeal) {
+      if (filters.appeal === '__blank') {
+        if (d.appealProcess !== '') return false;
+      } else {
+        if (d.appealProcess !== filters.appeal) return false;
+      }
+    }
+    if (filters.pii && d.usesPII !== filters.pii) return false;
+    if (filters.flaggedOnly && !ANNOTATIONS[d.id]) return false;
+    if (s) {
+      const hay = [d.name, d.problemStatement, d.outputs, d.trainingData].join(' ').toLowerCase();
+      if (!hay.includes(s)) return false;
+    }
+    return true;
+  });
+}
+
+// ─── RENDER ───
+function renderCards() {
+  const list = document.getElementById('cardList');
+  const filtered = getFiltered();
+
+  document.getElementById('resultCount').innerHTML =
+    `Showing <strong>${filtered.length}</strong> of <strong>236</strong> use cases`;
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="no-results"><h3>No matching use cases</h3><p>Try adjusting your filters or search terms.</p></div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(d => {
+    const anno = ANNOTATIONS[d.id];
+    const isFlagged = !!anno;
+    const hasClass = anno && anno.classNote;
+    const hasWatchdog = anno && anno.watchdog && anno.watchdog.length > 0;
+
+    return `
+      <div class="card ${isFlagged ? 'flagged' : ''}" id="card-${esc(d.id)}">
+        <div class="card-header" onclick="toggleCard('${esc(d.id)}')">
+          <span class="card-id">${esc(d.id)}</span>
+          <span class="card-agency">${esc(d.agency)}</span>
+          <span class="card-name">${highlightSearch(esc(d.name))}</span>
+          <span class="card-topic">${esc(d.topic)}</span>
+          <div class="card-badges">
+            ${impactBadge(d.impactLevel)}
+            ${appealBadge(d.appealProcess)}
+            ${d.demographicVariables ? '<span class="badge badge-demo">Demographics</span>' : ''}
+            ${d.usesPII === 'Yes' ? '<span class="badge badge-pii">PII</span>' : ''}
+            ${isFlagged ? '<span class="badge badge-flagged">&#9873; FLAGGED</span>' : ''}
+          </div>
+          <span class="card-expand-arrow">&#9654;</span>
+        </div>
+        <div class="card-body">
+          <div class="card-body-inner">
+            ${hasClass ? `
+              <div class="annotation-banner class-note">
+                <div class="annotation-label">Class Taxonomy Note</div>
+                ${esc(anno.classNote)}
+              </div>
+            ` : ''}
+            ${hasWatchdog ? `
+              <div class="annotation-banner watchdog-note">
+                <div class="annotation-label">Watchdog Flags</div>
+                ${anno.watchdog.map(w => `
+                  <div class="watchdog-entry">
+                    <div class="watchdog-source"><a href="${esc(w.url)}" target="_blank" rel="noopener">${esc(w.source)}</a></div>
+                    <div>${esc(w.concern)}</div>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+            <div class="detail-grid">
+              ${detailField('Problem Statement', d.problemStatement, true)}
+              ${detailField('AI Outputs', d.outputs, true)}
+              ${detailField('Training Data', d.trainingData, true)}
+              ${detailField('Demographic Variables', d.demographicVariables)}
+              ${detailField('Risk Assessment', d.riskAssessment)}
+              ${detailField('Appeal Process', d.appealProcess)}
+              ${detailField('Vendor', d.vendor)}
+              ${detailField('AI Type', d.aiType)}
+              ${detailField('Status', d.status)}
+              ${detailField('Uses PII', d.usesPII)}
+              ${detailField('Expected Benefits', d.expectedBenefits, true)}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleCard(id) {
+  const card = document.getElementById('card-' + id);
+  card.classList.toggle('open');
+}
+
+function impactBadge(level) {
+  if (level === 'High-impact') return '<span class="badge badge-impact-high">High-impact</span>';
+  if (level === 'Presumed high-impact') return '<span class="badge badge-impact-presumed">Presumed</span>';
+  return '<span class="badge badge-impact-not">Not high-impact</span>';
+}
+
+function appealBadge(val) {
+  if (val === 'Yes') return '<span class="badge badge-appeal-yes">Appeal: Yes</span>';
+  if (val === 'In-progress') return '<span class="badge badge-appeal-progress">Appeal: In-progress</span>';
+  if (val === 'Law precludes') return '<span class="badge badge-appeal-precludes">Law precludes</span>';
+  if (val === 'Not applicable') return '<span class="badge badge-appeal-na">N/A</span>';
+  return '<span class="badge badge-appeal-blank">No appeal listed</span>';
+}
+
+function detailField(label, value, full) {
+  const cls = full ? 'detail-field full' : 'detail-field';
+  if (!value || !value.trim()) {
+    return `<div class="${cls}"><div class="detail-label">${label}</div><div class="detail-value empty">Not provided</div></div>`;
+  }
+  return `<div class="${cls}"><div class="detail-label">${label}</div><div class="detail-value">${highlightSearch(esc(value))}</div></div>`;
+}
+
+function highlightSearch(text) {
+  const s = filters.search.trim();
+  if (!s) return text;
+  const re = new RegExp(`(${escapeRegex(esc(s))})`, 'gi');
+  return text.replace(re, '<mark>$1</mark>');
+}
+
+function esc(str) {
+  if (!str) return '';
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// ─── INIT ───
+loadData();
+</script>
+
+</body>
+</html>

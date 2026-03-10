@@ -1,0 +1,169 @@
+{
+  "_meta": {
+    "description": "Annotations for DHS AI Inventory Explorer. Two types: classNotes (from course taxonomy) and watchdog (from external analyses). Edit this file to add/remove/update flags without touching the app.",
+    "lastUpdated": "2026-03-10"
+  },
+  "stats": {
+    "totalUseCases": 236,
+    "noAppealProcess": 221,
+    "noAppealHighImpact": 89,
+    "highImpactTotal": 104,
+    "useDemographics": 6,
+    "usePII": "see data",
+    "facialRecognition": "30+"
+  },
+  "annotations": {
+    "DHS-2408": {
+      "classNote": "Predicts which noncitizens in the Alternatives to Detention program will abscond. Scores 1\u20135. Illustrates multiple bias types simultaneously: Historical bias (who was in ATD-ISAP historically reflects enforcement priorities), Measurement bias (\u2018absconded\u2019 flattens intentional flight, missed hearings, and system failures into one label), Deployment bias (framed as \u2018additional insight\u2019 but law precludes any appeal), and Automation bias (officers reviewing thousands of cases rely on the score). Uses Sex/Gender and Age.",
+      "watchdog": [
+        {
+          "source": "Brennan Center for Justice",
+          "concern": "Appropriately designated rights-impacting, but inventory notes risks of \u2018incorrectly giving high scores\u2019 and \u2018unrepresentative training data\u2019 with inadequate mitigation details provided.",
+          "url": "https://www.brennancenter.org/our-work/analysis-opinion/start-ai-transparency-dhs-room-grow"
+        },
+        {
+          "source": "TechPolicy.Press",
+          "concern": "Used for detention decisions without notifying impacted individuals or their attorneys of AI involvement. Lacks transparency in decision-making.",
+          "url": "https://www.techpolicy.press/five-findings-from-an-analysis-of-the-us-department-of-homeland-securitys-ai-inventory/"
+        },
+        {
+          "source": "140+ Organizations Coalition (via EFF)",
+          "concern": "Specifically named in letter calling on DHS to suspend non-compliant AI tools. Estimates detainee\u2019s flight risk \u2014 coalition argues it violates federal responsible AI requirements for life-impacting decisions.",
+          "url": "https://www.eff.org/deeplinks/2024/09/eff-140-other-organizations-call-end-ai-use-immigration-decisions"
+        }
+      ]
+    },
+    "DHS-2556": {
+      "classNote": "Built \u2018to solve the problem of human bias during resume reviews.\u2019 Uses off-the-shelf GPT-4 to score candidates red/yellow/green/blue. No custom training. A general-purpose LLM deployed as a consequential HR tool. Appeal process: in-progress.",
+      "watchdog": []
+    },
+    "DHS-130": {
+      "classNote": "Scans narrative sections of immigration applications for \u2018patterns that may indicate potential fraud, national security, and/or public safety concerns.\u2019 Claims to be \u2018agnostic\u2019 about whether patterns indicate fraud \u2014 but what makes a pattern suspicious in narrative text? Could flag writing styles or cultural expressions associated with certain national origins.",
+      "watchdog": []
+    },
+    "DHS-2515": {
+      "classNote": "An LLM summarizes and categorizes incoming tips, translating non-English tips to English regardless of original language. Framed as efficiency, but categorization IS prioritization \u2014 the system determines which tips officers see first.",
+      "watchdog": []
+    },
+    "DHS-407": {
+      "classNote": "Facial recognition for ATD-ISAP check-ins via smartphone app (SmartLINK). Pass or \u2018pending review.\u2019 Training data includes \u2018diverse facial images\u2019 but the vendor controls it. If the system fails more often for certain skin tones or lighting conditions, those people get flagged more \u2014 and the output says \u2018pending review,\u2019 not \u2018I\u2019m not sure.\u2019",
+      "watchdog": []
+    },
+    "DHS-2578": {
+      "classNote": "Uses LLMs to extract addresses from rap sheets and warrants for Enforcement and Removal Operations officers. If the LLM misreads an address, that\u2019s a wrong-door situation. Consequential output with no obvious quality check described in the inventory.",
+      "watchdog": []
+    },
+    "DHS-2457": {
+      "classNote": "Compares photos to \u2018publicly available online images\u2019 to locate missing people, including unaccompanied minors who crossed the border. Appeal: \u2018Not applicable.\u2019 The same facial recognition technology used for enforcement is also used for protection \u2014 same tool, different framing.",
+      "watchdog": []
+    },
+    "DHS-185": {
+      "classNote": null,
+      "watchdog": [
+        {
+          "source": "Brennan Center for Justice",
+          "concern": "Social media monitoring tool that \u2018searches and aggregates social media data\u2019 to screen travelers. Raises surveillance and discrimination concerns without adequate transparency.",
+          "url": "https://www.brennancenter.org/our-work/analysis-opinion/start-ai-transparency-dhs-room-grow"
+        },
+        {
+          "source": "TechPolicy.Press",
+          "concern": "DHS sought extensions for this social media monitoring program despite civil rights concerns.",
+          "url": "https://www.techpolicy.press/five-findings-from-an-analysis-of-the-us-department-of-homeland-securitys-ai-inventory/"
+        }
+      ]
+    },
+    "DHS-181": {
+      "classNote": null,
+      "watchdog": [
+        {
+          "source": "Brennan Center for Justice",
+          "concern": "ARGOS fraud risk analysis. Inventory itself lists known risks: \u2018data collection bias, lack of domain-specific accuracy, limited generalization to unseen data.\u2019 But risk mitigation explanations are \u2018indecipherable to an outsider.\u2019",
+          "url": "https://www.brennancenter.org/our-work/analysis-opinion/start-ai-transparency-dhs-room-grow"
+        }
+      ]
+    },
+    "DHS-2731": {
+      "classNote": null,
+      "watchdog": [
+        {
+          "source": "FedScoop / Nextgov",
+          "concern": "Mobile Fortify (CBP version). Listed as high-impact and actively deployed in immigration enforcement, but ICE still working on completing an AI impact assessment. Potential impacts \u2018have yet to be identified\u2019 \u2014 despite active deployment.",
+          "url": "https://fedscoop.com/dhs-ai-inventory-mobile-fortify-palantir/"
+        }
+      ]
+    },
+    "DHS-2577": {
+      "classNote": null,
+      "watchdog": [
+        {
+          "source": "FedScoop / Nextgov",
+          "concern": "Mobile Fortify (ICE version). Same tool as CBP\u2019s DHS-2731, deployed by ICE. AI impact assessment incomplete despite active use in immigration enforcement.",
+          "url": "https://fedscoop.com/dhs-ai-inventory-mobile-fortify-palantir/"
+        }
+      ]
+    },
+    "DHS-2749": {
+      "classNote": null,
+      "watchdog": [
+        {
+          "source": "Brennan Center for Justice",
+          "concern": "ICE real-time translation tool. Despite DHS determination that it doesn\u2019t impact rights, the tool likely communicates \u2018rights to migrants, agency expectations, and critical deadlines that, if missed, may waive a person\u2019s rights.\u2019",
+          "url": "https://www.brennancenter.org/our-work/analysis-opinion/start-ai-transparency-dhs-room-grow"
+        }
+      ]
+    },
+    "DHS-2389": {
+      "classNote": "Passenger Security Assessment Model. Uses Sex/Gender and Age to produce risk assessments integrated into the Automated Targeting System. What does \u2018security risk\u2019 actually measure?",
+      "watchdog": [
+        {
+          "source": "Brennan Center for Justice",
+          "concern": "Integrates AI outputs into the Automated Targeting System (ATS), \u2018creating compounded civil rights risks through integration with problematic automated systems.\u2019",
+          "url": "https://www.brennancenter.org/our-work/analysis-opinion/start-ai-transparency-dhs-room-grow"
+        }
+      ]
+    },
+    "DHS-365": {
+      "classNote": "The only system in the entire inventory that explicitly uses Race/Ethnicity, Sex/Gender, AND Age as model inputs. Facial recognition for visa processing via the Consular Consolidated Database.",
+      "watchdog": []
+    },
+    "DHS-80": {
+      "classNote": "Traveler Entity Resolution. Uses Sex/Gender and Age. Outputs integrated into ATS to recommend further inspection. Appeal: \u2018Law precludes.\u2019",
+      "watchdog": []
+    },
+    "DHS-2759": {
+      "classNote": "Open-source intelligence for investigations. One of only two systems using Race/Ethnicity as an explicit model input (along with DHS-365). Also uses Sex/Gender and Age. Outputs include \u2018flagged risk alerts, extracted identifiers, image and sentiment classification, and suggested investigative leads.\u2019",
+      "watchdog": []
+    },
+    "DHS-81": {
+      "classNote": "Passport Anomaly Model. Uses Age as a demographic variable. Detects anomalies in passport applications.",
+      "watchdog": []
+    }
+  },
+  "systemwideFindings": [
+    {
+      "source": "TechPolicy.Press",
+      "finding": "DHS failed to fill in all inventory fields, elected self-certification over third-party review, and does not notify people or their attorneys when AI has been used in their case.",
+      "url": "https://www.techpolicy.press/five-findings-from-an-analysis-of-the-us-department-of-homeland-securitys-ai-inventory/"
+    },
+    {
+      "source": "Brennan Center for Justice",
+      "finding": "Only 19% of projects reported complete documentation about training data and trustworthiness. 95% of tools contracted out to vendors. Only 16% of contracted cases reported performance metrics.",
+      "url": "https://www.brennancenter.org/our-work/analysis-opinion/start-ai-transparency-dhs-room-grow"
+    },
+    {
+      "source": "American Immigration Council",
+      "finding": "27 of 105 immigration-related use cases labeled \u2018rights-impacting.\u2019 16 involve facial recognition or face capture.",
+      "url": "https://www.americanimmigrationcouncil.org/blog/invisible-gatekeepers-dhs-growing-use-of-ai-in-immigration-decisions/"
+    },
+    {
+      "source": "GAO",
+      "finding": "Audited DHS AI use for cybersecurity. Found key responsible AI practices not fully implemented.",
+      "url": "https://www.gao.gov/products/gao-24-106246"
+    },
+    {
+      "source": "140+ Organizations Coalition (via EFF)",
+      "finding": "Called on DHS to suspend AI technologies for immigration enforcement that do not comply with federal requirements for responsible AI, citing violations for life-impacting decisions.",
+      "url": "https://www.eff.org/deeplinks/2024/09/eff-140-other-organizations-call-end-ai-use-immigration-decisions"
+    }
+  ]
+}
